@@ -57,9 +57,11 @@ sudo chown -R "$USER":"$USER" /opt/web_experiment
 ```bash
 # 方案 A：服务器上 git clone
 cd /opt
-git clone <你的仓库地址> web_experiment_repo
-cd /opt/web_experiment_repo/web_experiment
+git clone https://github.com/hxiaom/web_experiment.git web_experiment
+cd /opt/web_experiment
 ```
+
+
 
 ```bash
 # 方案 B：本机打包上传
@@ -100,7 +102,7 @@ openssl rand -base64 48
 ## 启动应用
 
 ```bash
-cd /opt/web_experiment_repo/web_experiment
+cd /opt/web_experiment
 mkdir -p data
 docker compose up -d --build
 docker compose ps
@@ -158,6 +160,11 @@ server {
 
 证书可以用阿里云数字证书管理服务，也可以用 Certbot。证书路径按你的实际部署方式调整。
 
+## 入网规则
+
+登录阿里云控制台 → 安全组 sg-8vba8362n910orl1njus → 入站规则
+确认是否有"3000 / 0.0.0.0"的规则
+
 ## 数据备份
 
 实验开始前先确认 `data/app.db` 会落在宿主机：
@@ -204,3 +211,29 @@ curl -I https://你的域名/start
 
 如果压测时出现 `database is locked`、聊天大量 502、或 LLM 延迟明显上升，优先检查 LLM 服务配额，其次考虑把 SQLite 迁移到 RDS。
 
+
+
+
+## ECS 实例创建示例
+
+下面是一个实际创建的 ECS 实例配置供参考：
+
+| 项目 | 值 |
+| --- | --- |
+| 付费方式 | 按量付费 |
+| 地域 | 华北3（张家口） |
+| 可用区 | 张家口 可用区B |
+| 实例规格 | 计算型 c9i / ecs.c9i.large (2 vCPU / 4 GiB) |
+| 镜像 | Ubuntu 24.04 64位（非安全加固） |
+| 系统盘 | ESSD 云盘 40GiB，PL0，随实例释放 |
+| 文件备份 | 激活备份 |
+| 公网带宽 | 按使用流量 50Mbps |
+| 登录凭证 | 密钥对（sysu） |
+| 专有网络（VPC） | vpc-8vb0icc5dor1v1nyc35qv |
+| 交换机 | vsw-8vb57v3ku4zxtde8gpzl8 |
+| 安全组 | sg-8vba8362n910orl1njus |
+| 弹性网卡 | eth0 |
+| CPU选项 | 每核心线程数 2，核心计数 1 |
+| 实例名称 | launch-advisor-20260601 |
+| 实例释放保护 | 否 |
+| 元数据访问模式 | 普通模式和加固模式 |
