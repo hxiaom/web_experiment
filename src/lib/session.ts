@@ -18,7 +18,8 @@ type AdminCookiePayload = {
 };
 
 function getCookieOptions() {
-  const secure = process.env.NODE_ENV === "production";
+  const secure =
+    process.env.COOKIE_SECURE === "false" ? false : process.env.COOKIE_SECURE === "true" ? true : process.env.NODE_ENV === "production";
   return {
     httpOnly: true,
     sameSite: "lax" as const,
