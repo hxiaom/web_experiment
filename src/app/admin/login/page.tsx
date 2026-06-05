@@ -2,6 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { readJsonResponse } from "@/lib/client/api";
+
+type AdminLoginResponse = {
+  ok: boolean;
+  error?: string;
+};
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -19,7 +25,7 @@ export default function AdminLoginPage() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ password }),
       });
-      const data = await res.json();
+      const data = await readJsonResponse<AdminLoginResponse>(res);
       if (!res.ok || !data.ok) {
         setError("密码错误");
         return;
@@ -61,4 +67,3 @@ export default function AdminLoginPage() {
     </div>
   );
 }
-

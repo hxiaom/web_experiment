@@ -1,19 +1,27 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { readJsonResponse } from "@/lib/client/api";
 
 type ParticipantRow = { participant_id: string; cond: string; created_at: number; updated_at: number };
+type ExperimentCond = "high" | "low" | "neutral";
+type ParticipantsListResponse = { ok: boolean; participants: ParticipantRow[]; error?: string };
+type ParticipantUpsertResponse = { ok: boolean; participant_id?: string; cond?: string; error?: string };
+
+function isExperimentCond(value: string): value is ExperimentCond {
+  return value === "high" || value === "low" || value === "neutral";
+}
 
 export default function AdminParticipantsPage() {
   const [rows, setRows] = useState<ParticipantRow[]>([]);
   const [participantId, setParticipantId] = useState("");
-  const [cond, setCond] = useState<"high" | "low" | "neutral">("neutral");
+  const [cond, setCond] = useState<ExperimentCond>("neutral");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function refresh() {
     const res = await fetch("/api/admin/participants/list");
-    const data = await res.json();
+    const data = await readJsonResponse<ParticipantsListResponse>(res);
     if (!res.ok || !data.ok) throw new Error(data?.error || "list_failed");
     setRows(data.participants);
   }
@@ -31,7 +39,7 @@ export default function AdminParticipantsPage() {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ participant_id: participantId.trim(), cond }),
       });
-      const data = await res.json();
+      const data = await readJsonResponse<ParticipantUpsertResponse>(res);
       if (!res.ok || !data.ok) throw new Error(data?.error || "upsert_failed");
       setParticipantId("");
       await refresh();
@@ -77,7 +85,9 @@ export default function AdminParticipantsPage() {
             <label className="mb-1 block text-sm font-medium">cond</label>
             <select
               value={cond}
-              onChange={(e) => setCond(e.target.value as any)}
+              onChange={(e) => {
+                if (isExperimentCond(e.target.value)) setCond(e.target.value);
+              }}
               className="w-full rounded-xl border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
             >
               <option value="high">high</option>
@@ -132,4 +142,3 @@ export default function AdminParticipantsPage() {
     </div>
   );
 }
-

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { readJsonResponse } from "@/lib/client/api";
 
 type EventTypeCount = {
   event_type: string;
@@ -26,6 +27,14 @@ type Filters = {
   date_from: string;
   date_to: string;
   limit: string;
+};
+
+type EventsListResponse = {
+  ok: boolean;
+  events: EventRow[];
+  event_types: EventTypeCount[];
+  total: number;
+  error?: string;
 };
 
 const DEFAULT_FILTERS: Filters = {
@@ -72,7 +81,7 @@ export default function AdminEventsPage() {
     try {
       const query = buildQuery(nextFilters);
       const res = await fetch(`/api/admin/events/list${query ? `?${query}` : ""}`);
-      const data = await res.json();
+      const data = await readJsonResponse<EventsListResponse>(res);
       if (!res.ok || !data.ok) throw new Error(data?.error || "events_list_failed");
       setRows(data.events);
       setEventTypes(data.event_types);
