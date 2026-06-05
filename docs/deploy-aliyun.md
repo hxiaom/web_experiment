@@ -87,13 +87,16 @@ ADMIN_PASSWORD=换成强密码
 SESSION_SECRET=换成至少32字节的随机字符串
 DB_PATH=/app/data/app.db
 
-LLM_BASE_URL=https://你的-openai-compatible-endpoint
-LLM_API_KEY=你的-key
-LLM_MODEL=你的模型名
+LLM_BASE_URL=https://api.minimaxi.com/v1
+LLM_API_KEY=你的-MiniMax-API-Key
+LLM_MODEL=MiniMax-M3
 
 PUBLIC_BASE_URL=https://你的域名
 LLM_TIMEOUT_MS=30000
 ```
+
+MiniMax 文档中的 OpenAI 兼容接口为 `https://api.minimaxi.com/v1/chat/completions`；
+本项目只需要在 `LLM_BASE_URL` 填到 `/v1`，代码会自动拼接 `/chat/completions`。
 
 可用下面命令生成 `SESSION_SECRET`：
 

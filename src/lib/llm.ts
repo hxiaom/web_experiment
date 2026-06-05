@@ -7,16 +7,23 @@ type ChatCompletionResponse = {
   choices?: Array<{ message?: { role?: string; content?: string } }>;
 };
 
+function chatCompletionsUrl(baseUrl: string): string {
+  const normalized = baseUrl.replace(/\/+$/, "");
+  if (normalized.endsWith("/chat/completions")) return normalized;
+  if (normalized.endsWith("/v1")) return `${normalized}/chat/completions`;
+  return `${normalized}/v1/chat/completions`;
+}
+
 export async function callChatCompletion(messages: ChatMessage[]): Promise<{
   content: string;
   requestId?: string;
   latencyMs: number;
 }> {
-  const baseUrl = requireEnv("LLM_BASE_URL").replace(/\/+$/, "");
+  const baseUrl = requireEnv("LLM_BASE_URL");
   const apiKey = requireEnv("LLM_API_KEY");
   const model = requireEnv("LLM_MODEL");
 
-  const url = `${baseUrl}/v1/chat/completions`;
+  const url = chatCompletionsUrl(baseUrl);
   const controller = new AbortController();
   const timeoutMs = Number(optionalEnv("LLM_TIMEOUT_MS") ?? "30000");
   const started = Date.now();
@@ -48,4 +55,3 @@ export async function callChatCompletion(messages: ChatMessage[]): Promise<{
     clearTimeout(t);
   }
 }
-
